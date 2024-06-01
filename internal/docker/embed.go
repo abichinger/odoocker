@@ -3,19 +3,18 @@ package docker
 import (
 	"embed"
 	"os"
-	"path/filepath"
 )
 
 //go:embed docker-compose.yml
+//go:embed Dockerfile
 var fs embed.FS
 
-// WriteDockerCompose writes the embedded docker-compose.yml into the specified output directory.
-func WriteDockerCompose(outputDir string) error {
-	data, err := fs.ReadFile("docker-compose.yml")
+// FsCopy writes the embedded file to dest
+func FsCopy(src string, dest string) error {
+	data, err := fs.ReadFile(src)
 	if err != nil {
 		return err
 	}
 
-	outputPath := filepath.Join(outputDir, "docker-compose.yml")
-	return os.WriteFile(outputPath, data, os.ModePerm)
+	return os.WriteFile(dest, data, os.ModePerm)
 }

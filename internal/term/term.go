@@ -10,8 +10,13 @@ import (
 	"github.com/morikuni/aec"
 )
 
+func IsTerminal(fd uintptr) bool {
+	return term.IsTerminal(fd)
+}
+
 type scroll struct {
 	fd     *os.File
+	width  int
 	size   int
 	lines  []string
 	prefix string
@@ -27,13 +32,15 @@ func WithPrefix(prefix string) scrollOption {
 }
 
 func NewScroll(fd *os.File, size int, options ...scrollOption) io.Writer {
-	if !term.IsTerminal(fd.Fd()) {
-		return fd
+	wsize, err := term.GetWinsize(fd.Fd())
+	if err != nil {
+		panic(err)
 	}
 
 	s := &scroll{
-		fd:   fd,
-		size: size,
+		fd:    fd,
+		size:  size,
+		width: int(wsize.Width),
 	}
 
 	for _, opt := range options {
@@ -78,7 +85,10 @@ func (s *scroll) Write(p []byte) (n int, err error) {
 	s.addLines(strings.TrimSpace(string(p)))
 
 	for _, line := range s.lines {
-		_, err = fmt.Fprintln(s.fd, s.prefix, line)
+		if len(line) > s.width {
+			line = line[:s.width]
+		}
+		_, err = fmt.Fprintln(s.fd, line)
 		if err != nil {
 			return
 		}

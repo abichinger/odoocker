@@ -1,18 +1,26 @@
 services:
   web:
-    image: odoo:${ODK_ODOO_TAG}
+    #image: odoo:${ODK_ODOO_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # no_cache: true
+      args:
+        TAG: ${ODK_ODOO_TAG}
+        TOUR: ${ODK_TOUR}
     depends_on:
       - db
     ports:
       - "8069:8069"
     volumes:
-      - odoo-web-data:/var/lib/odoo
+      # - odoo-web-data:/var/lib/odoo
       # - ./config:/etc/odoo
       - ${ODK_ADDONS}:/mnt/extra-addons
     environment:
       HOST: db
       USER: odoo
       PASSWORD: pwd
+    command: sleep infinity
     
   db:
     image: postgres:${ODK_POSTGRES_TAG}
@@ -23,8 +31,8 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     # volumes:
     #   - odoo-db-data:/var/lib/postgresql/data/pgdata
-volumes:
-  odoo-web-data:
+# volumes:
+  # odoo-web-data:
   # odoo-db-data:
 
 secrets:
