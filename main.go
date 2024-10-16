@@ -19,6 +19,7 @@ func main() {
 
 	// Run the CLI
 	if err := cli.Run(); err != nil {
-		panic(err)
+		log.Error().Msg(err.Error())
+		os.Exit(1)
 	}
 }
