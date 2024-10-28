@@ -76,12 +76,12 @@ func (t *Test) Run() error {
 
 func (t *Test) install() error {
 	modules := strings.Join(t.options.Modules, ",")
-	return t.docker.Exec(web, "/entrypoint.sh", "--stop-after-init", "-d", "odoo", "-i", modules)
+	return t.docker.ExecAs("odoo", web, "/entrypoint.sh", "--stop-after-init", "-d", "odoo", "-i", modules)
 }
 
 func (t *Test) test() error {
 	testTags := strings.Join(t.options.TestTags, ",")
-	return t.docker.Exec(web, "/entrypoint.sh", "--stop-after-init", "-d", "odoo", "--test-tags", testTags)
+	return t.docker.ExecAs("odoo", web, "/entrypoint.sh", "--stop-after-init", "-d", "odoo", "--test-tags", testTags)
 }
 
 func AddTestCommand(cli *clir.Cli) {

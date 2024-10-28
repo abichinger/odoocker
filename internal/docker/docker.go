@@ -24,6 +24,11 @@ func (c *Client) Exec(args ...string) error {
 	return c.Compose(args)
 }
 
+func (c *Client) ExecAs(user string, args ...string) error {
+	args = append([]string{"-u", user}, args...)
+	return c.Exec(args...)
+}
+
 func (c *Client) Up(detach bool, build bool, service ...string) error {
 	args := []string{"up"}
 	if detach {

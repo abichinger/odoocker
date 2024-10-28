@@ -40,7 +40,7 @@ func (r *Run) Run() error {
 
 	i := slices.IndexFunc(os.Args, func(arg string) bool { return arg == "run" })
 	args := append([]string{web}, os.Args[i+1:]...)
-	r.docker.Exec(args...)
+	r.docker.ExecAs("odoo", args...)
 
 	return nil
 
