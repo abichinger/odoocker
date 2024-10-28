@@ -20,6 +20,7 @@ services:
       HOST: db
       USER: odoo
       PASSWORD: pwd
+    env_file: ".env"
     command: sleep infinity
     
   db:

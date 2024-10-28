@@ -17,6 +17,7 @@ type Common struct {
 	Verbose         bool   `description:"verbose output"`
 	IsTerminal      bool   `name:"term" default:"true" description:"is terminal"`
 	Tour            bool   `name:"tour" default:"false" description:"installs websocket-client and chrome"`
+	EnvFile         string `name:"env-file" description:"path to env file"`
 }
 
 func (c *Common) Apply() {

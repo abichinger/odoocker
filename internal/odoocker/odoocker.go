@@ -11,17 +11,22 @@ import (
 )
 
 type IOdoocker interface {
-	environ(all bool) []string
+	environ(all bool) ([]string, error)
 	cmdOut() io.Writer
 	composeFile() string
 }
 
-func NewDockerClient(o IOdoocker) *docker.Client {
+func NewDockerClient(o IOdoocker) (*docker.Client, error) {
+	env, err := o.environ(true)
+	if err != nil {
+		return nil, err
+	}
+
 	return &docker.Client{
-		Env:         o.environ(true),
+		Env:         env,
 		ComposeFile: o.composeFile(),
 		Writer:      o.cmdOut(),
-	}
+	}, nil
 }
 
 type Odoocker struct {
@@ -35,7 +40,7 @@ func NewOdoocker(options *flags.Common) *Odoocker {
 	}
 }
 
-func (o *Odoocker) environ(all bool) []string {
+func (o *Odoocker) environ(all bool) ([]string, error) {
 	addons, _ := filepath.Abs(o.options.Addons)
 
 	env := []string{}
@@ -48,13 +53,23 @@ func (o *Odoocker) environ(all bool) []string {
 	if o.options.Tour {
 		env = append(env, "ODK_TOUR=true")
 	}
+	if o.options.EnvFile != "" {
+		content, err := os.ReadFile(o.options.EnvFile)
+		if err != nil {
+			return env, err
+		}
+		env = append(env, strings.Split(string(content), "\n")...)
+	}
 
-	return env
+	return env, nil
 }
 
 func (o *Odoocker) WriteEnv() error {
 	name := filepath.Join(o.tempDir(), ".env")
-	env := o.environ(false)
+	env, err := o.environ(false)
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(name, []byte(strings.Join(env, "\n")), os.ModePerm)
 }
 

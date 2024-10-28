@@ -14,14 +14,18 @@ type Run struct {
 	options *flags.Run
 }
 
-func NewRun(options *flags.Run) *Run {
+func NewRun(options *flags.Run) (*Run, error) {
 	r := &Run{
 		Odoocker: NewOdoocker(options.Common),
 		options:  options,
 	}
 
-	r.docker = NewDockerClient(r)
-	return r
+	docker, err := NewDockerClient(r)
+	if err != nil {
+		return r, err
+	}
+	r.docker = docker
+	return r, nil
 }
 
 func (r *Run) cmdOut() io.Writer {
@@ -54,7 +58,11 @@ func AddRunCommand(cli *clir.Cli) {
 
 	cmd.Action(func() error {
 		flags.Apply()
-		return NewRun(flags).Run()
+		action, err := NewRun(flags)
+		if err != nil {
+			return err
+		}
+		return action.Run()
 	})
 
 }

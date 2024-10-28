@@ -22,15 +22,19 @@ type Test struct {
 	analyzer *olog.OdooAnalyzer
 }
 
-func NewTest(options *flags.Test) *Test {
+func NewTest(options *flags.Test) (*Test, error) {
 	t := &Test{
 		Odoocker: NewOdoocker(options.Common),
 		options:  options,
 		analyzer: olog.NewOdooAnalyzer(),
 	}
 
-	t.docker = NewDockerClient(t)
-	return t
+	docker, err := NewDockerClient(t)
+	if err != nil {
+		return t, err
+	}
+	t.docker = docker
+	return t, nil
 }
 
 func (t *Test) cmdOut() io.Writer {
@@ -106,7 +110,11 @@ func AddTestCommand(cli *clir.Cli) {
 			os.Exit(1)
 		}
 
-		return NewTest(flags).Run()
+		action, err := NewTest(flags)
+		if err != nil {
+			return err
+		}
+		return action.Run()
 	})
 
 }
