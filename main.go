@@ -16,6 +16,7 @@ func main() {
 	cli := clir.NewCli("odoocker", "Setup and run odoo inside a docker container", "v1.0.0")
 	odoocker.AddTestCommand(cli)
 	odoocker.AddRunCommand(cli)
+	odoocker.AddUpCommand(cli)
 
 	// Run the CLI
 	if err := cli.Run(); err != nil {

@@ -41,4 +41,7 @@ type Test struct {
 
 type Run struct {
 	*Common
+type Up struct {
+	*Common
+	Modules []string `name:"m" description:"List of modules to install"`
 }
